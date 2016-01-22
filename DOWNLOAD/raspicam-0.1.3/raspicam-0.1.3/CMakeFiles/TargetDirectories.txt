@@ -1,2 +1,0 @@
-/home/pi/c++/GIT/raspicam-0.1.3/raspicam-0.1.3/CMakeFiles/raspicam_still_test.dir
-/home/pi/c++/GIT/raspicam-0.1.3/raspicam-0.1.3/CMakeFiles/raspicam_test.dir
