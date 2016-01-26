@@ -7,7 +7,7 @@
 
 #include <wiringPi.h>
 
-std::string  _logfile  = "/tmp/iDom_log.log";
+std::string  _logfile  = "/tmp/robot_log.log";
 std::string buffer ;
 Logger log_file_mutex(_logfile);
 //int max_msg = MAX_MSG_LEN*sizeof(int32_t);
@@ -18,10 +18,10 @@ void *Send_Recieve_rs232_thread (void *przekaz){
     thread_data_rs232 *data_rs232;
 
     data_rs232 = (thread_data_rs232*)przekaz;
-    // serialib port_arduino;   // obiekt port rs232
-    //Serial.begin(9600);
-    SerialPi serial_ardu(strdup( data_rs232->portRS232.c_str()));
 
+
+    SerialPi serial_ardu(strdup( data_rs232->portRS232.c_str()));
+    //SerialPi serial_ardu("/dev/ttyACM0");
     serial_ardu.begin( atoi( data_rs232->BaudRate.c_str()));
     std::string znak;
 
@@ -79,7 +79,7 @@ void *Server_connectivity_thread(void *przekaz){
 
     pthread_detach( pthread_self () );
 
-    // std::cout << " przed while  soket " <<my_data->s_v_socket_klienta << std::endl;
+    std::cout << " przed while  soket "<< std::endl;
 
     C_connection *client = new C_connection( my_data);
 
@@ -135,7 +135,9 @@ int main()
     pthread_mutex_init(&Logger::mutex_log, NULL);
     //pthread_t  main_th;
     //pthread_create (&main_th, NULL,&main_thread,NULL);
+
     config server_settings   =  read_config ( "/home/pi/cpp/Robot2/robot_config.cfg"    );     // strukruta z informacjami z pliku konfigu
+
     struct sockaddr_in server;
     int v_socket;
 
@@ -164,20 +166,12 @@ int main()
     log_file_cout << INFO  << "port TCP \t"<< server_settings.PORT << std::endl;
     log_file_cout << INFO  << "serwer ip \t"<< server_settings.SERVER_IP  <<std::endl;
     log_file_cout << INFO  << "dodatkowe NODY w sieci:\n"  <<std::endl;
-
+     log_file_mutex.mutex_unlock();
 
 
     ///////////////////////////////////////////////  koniec logowania do poliku  ///////////////////////////////////////////////////
 
-    ///////////////////////////////////////////////  start wiringPi  //////////////////////////////////////////////
-    if (wiringPiSetup () == -1)
-        exit (1) ;
 
-    pinMode(BUZZER, OUTPUT); 		// BUZZER  na wyjscie  GPIO
-    digitalWrite(BUZZER,LOW);
-    pinMode(GPIO_SPIK, OUTPUT);    // gpio pin do zasilania glosnikow
-    digitalWrite(GPIO_SPIK,HIGH);
-    pinMode(BUTTON_PIN, INPUT);   //  gpio pin przycisku
 
     /////////////////////////////////////////////////   wypelniam  struktury przesylane do watkow  ////////////////////////
     thread_data_rs232 data_rs232;

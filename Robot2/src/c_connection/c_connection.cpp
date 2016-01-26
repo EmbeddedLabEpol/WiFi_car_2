@@ -103,7 +103,7 @@ int C_connection::c_analyse()
     std::string buf(c_buffer);
     std::vector <std::string> command;
 
-    boost::char_separator<char> sep(",\n ");
+    boost::char_separator<char> sep(",\n:;");
     boost::tokenizer< boost::char_separator<char> > tokens(buf, sep);
 
     BOOST_FOREACH (const std::string& t, tokens) {
@@ -112,7 +112,7 @@ int C_connection::c_analyse()
     }
     command.pop_back();  // usowa ostanit wpis smiec
 
-
+std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
     switch (command.size())
     {
     case 1 :

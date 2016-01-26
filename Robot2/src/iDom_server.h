@@ -86,10 +86,7 @@ struct config{
     std::string BaudRate;
     std::string PORT;
     std::string SERVER_IP;
-
     unsigned int ID_server;
-
-
     int v_delay  ;
 
 
