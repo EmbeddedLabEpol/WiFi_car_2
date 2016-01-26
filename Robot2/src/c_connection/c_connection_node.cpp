@@ -3,27 +3,7 @@
 #include <iostream>
 
 
-void C_connection::c_start_master ()
-{
 
-    std::cout <<  " w pamieci jest " <<my_data->server_settings->AAS.size() <<" nodow\n";
-    for (unsigned int i =0 ; i<my_data->server_settings->AAS.size() ; ++i )
-    {
-        std::cout << "  jest ustawien id " <<  my_data->server_settings->AAS[i].id << std::endl;
-        std::cout << "  jest ustawien ip " <<  my_data->server_settings->AAS[i].SERVER_IP << std::endl;
-    }
-        while (1)
-        {
-
-             //c_recv_master_to();
-             c_recv_send_master();
-             std::cout << " odebralem w masterze \n";
-             //c_send_master_to(c_bufor_tmp[16]);
-
-        }
-
-
-}
 
 
 void C_connection::c_recv_send_master()

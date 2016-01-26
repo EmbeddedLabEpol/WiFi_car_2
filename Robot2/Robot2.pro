@@ -1,7 +1,7 @@
 TEMPLATE = app
 CONFIG += console
 CONFIG -= qt
-LIBS +=   -L/usr/local/lib    -lwiringPiDev -lwiringPi -lmpd   -llirc_client -pthread  -lrt -lpthread -lboost_regex
+LIBS +=   -L/usr/local/lib    -lwiringPiDev -lwiringPi  -pthread  -lrt -lpthread -lboost_regex
 
 SOURCES += src/iDom_server.cpp src/parser/parser.cpp src/serialib/serialib.cpp \
  src/c_connection/c_connection.cpp \
