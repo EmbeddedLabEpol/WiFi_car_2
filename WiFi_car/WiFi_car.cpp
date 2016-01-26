@@ -156,7 +156,7 @@ void analyse ( char c_buffer [256],SerialPi * serial_ardu)
 		}
 		
 		serial_ardu->print(buffer.c_str());
-		
+	std::cout << "bufor" << buffer <<std::endl;
 		 if (serial_ardu->available() > 0)
             {
                buffer.erase();
