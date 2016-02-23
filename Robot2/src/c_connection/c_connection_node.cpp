@@ -3,7 +3,12 @@
 #include <iostream>
 
 
+void C_connection::c_start_master ()
+{
 
+
+
+}
 
 
 void C_connection::c_recv_send_master()

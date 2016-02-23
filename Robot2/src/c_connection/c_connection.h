@@ -2,7 +2,6 @@
 #define C_CONNECTION_H
 
 #include "../functions/functions.h"                 // brak
-
 #include "src/iDom_server.h"
 
 #include <unistd.h>
@@ -39,7 +38,7 @@ public:
      int c_send(int para);
      int c_send(char command[]);
      int c_recv(int para);
- int32_t c_return(int iterator);
+ //int32_t c_return(int iterator);
     void c_get(int32_t buffor, int i);
     void c_send_recv_RS232 ();
     void c_read_buf (int c_pthread_self);

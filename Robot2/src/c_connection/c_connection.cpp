@@ -16,7 +16,7 @@ C_connection::C_connection (thread_data  *my_data):c_socket(my_data->s_client_so
     this -> pointer = &my_data->pointer;
     this -> my_data = my_data;
     log_file_mutex.mutex_lock();
-    log_file_cout << INFO<< " konstruuje nowy obiekt do komunikacj na gniezdzie " << c_socket <<  std::endl;
+    log_file_cout << INFO<< "konstruuje nowy obiekt do komunikacj na gniezdzie " << c_socket <<  std::endl;
     log_file_mutex.mutex_unlock();
 
 }
@@ -38,7 +38,7 @@ C_connection::~C_connection()
         }
     }
     log_file_mutex.mutex_lock();
-    log_file_cout << INFO<< " koniec komunikacji - kasuje obiekt" <<  std::endl;
+    log_file_cout << INFO<< "koniec komunikacji - kasuje obiekt" <<  std::endl;
     log_file_mutex.mutex_unlock();
 }
 
@@ -67,12 +67,19 @@ int C_connection::c_recv(int para)
     {
         c_buffer[i]=' ';
     }
+
+    struct timeval tv;
+    tv.tv_sec = 90;
+    tv.tv_usec = 0;
+    setsockopt(c_socket,SOL_SOCKET,SO_RCVTIMEO,(char*)&tv , sizeof(struct timeval));
+
     recv_size = recv( c_socket, c_buffer , MAX_buf, para );
+
     if(recv_size < 0 )
     {
         //perror( "recv() ERROR" );
         log_file_mutex.mutex_lock();
-        log_file_cout << ERROR << " recv() error" <<   std::endl;
+        log_file_cout << ERROR << "recv() error - " << strerror(  errno ) <<   std::endl;
         log_file_mutex.mutex_unlock();
         return -1;
     }
@@ -103,16 +110,16 @@ int C_connection::c_analyse()
     std::string buf(c_buffer);
     std::vector <std::string> command;
 
-    boost::char_separator<char> sep(",\n:;");
+    boost::char_separator<char> sep(",:; ");
     boost::tokenizer< boost::char_separator<char> > tokens(buf, sep);
 
     BOOST_FOREACH (const std::string& t, tokens) {
-        std::cout << " rozmiar t: " << t.size() << std::endl;
+        //std::cout << " rozmiar t: " << t.size() << std::endl;
         command.push_back( t);
     }
     command.pop_back();  // usowa ostanit wpis smiec
+    c_write_buf("unknown command\n");
 
-std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
     switch (command.size())
     {
     case 1 :
@@ -122,6 +129,7 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
             c_write_buf("\nEND.\n");
             break;
         }
+
         else if (command[0]=="hello")
         {
             c_write_buf("\nHI !\n");
@@ -130,7 +138,8 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
         else if (command [0] == "help")
         {
             l_send_log("/etc/config/iDom_SERVER/help");
-            //break;
+            c_write_buf("\nEND.\n");
+            break;
         }
         else if (command [0] == "OK")
         {
@@ -140,20 +149,22 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
         else if (command [0] == "IP")
         {
             c_write_buf(( char*) my_data->server_settings->SERVER_IP.c_str() );
+
             break;
         }
         else if (command [0] == "uptime")
         {
             time(&my_data->now_time);
             temporary_str ="uptime: ";
-            temporary_str += boost::lexical_cast<std::string>( difftime(my_data->now_time,my_data->start)    ) + " sek.";
+            temporary_str +=  sek_to_uptime(difftime(my_data->now_time,my_data->start) );
+            //temporary_str += boost::lexical_cast<std::string>( difftime(my_data->now_time,my_data->start)    ) + " sek.";
 
             c_write_buf( (char*) temporary_str.c_str() );
             break;
         }
         else
         {
-            c_write_buf("\nEND.\n");
+            // c_write_buf("\nEND.\n");
             break;
         }
     case 2 :
@@ -168,7 +179,10 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
                 return false;
 
             }
-            break;
+            else
+            {c_write_buf("stop what? \n");
+                break;
+            }
         }
         else if (command[0]=="show")
         {
@@ -176,7 +190,15 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
             {
 
                 l_send_log(_logfile);
-                c_write_buf("\nEND.");
+                c_write_buf("\nEND.\n");
+                break;
+            }
+            else if (command[1]=="thread")
+            {
+
+                temporary_str = " No ID";
+
+                c_write_buf( (char*)temporary_str.c_str() );
                 break;
             }
 
@@ -184,7 +206,7 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
 
         else
         {
-            c_write_buf("\nEND.\n");
+            // c_write_buf("\nEND.\n");
             break;
         }
 
@@ -198,7 +220,7 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
                 if (command[2]=="temperature"){
                     std::cout << " szukam temeratury" << std::endl;
 
-                            c_write_buf(  (char *)send_to_arduino(my_data,"temperature:339;").c_str()    );
+                    c_write_buf(  (char *)send_to_arduino(my_data,"temperature:339;").c_str()    );
 
                     break;
                 }
@@ -235,7 +257,7 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
                     temporary_str += " socket: ";
                     temporary_str += intToStr(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_socket);
                     c_write_buf( (char*)temporary_str.c_str() );
-                break;
+                    break;
                 }
 
                 else {
@@ -267,13 +289,103 @@ std::cout <<" jest komend "<< command.size()<<" "<<std::endl;
 
         else
         {
-            c_write_buf("END.\n");
+            // c_write_buf("END.\n");
             break;
         }
+    case 24:
+        buffer = "STOP:00000;";
+        if (atoi(command[4].c_str())<0 && atoi(command[5].c_str()) ==0 && command[13]=="0" )
+        {
+            buffer = "forward:";
+            buffer += intToStr( atoi(command[4].c_str())*-1);
+            buffer +=";";
+        }
 
+        else if (atoi(command[3].c_str()) > 0 &&  atoi(command[4].c_str()) ==0  && command[13]=="0")
+        {
+            buffer = "right:";
+            buffer += command[3]  ;
+            buffer +=";";
+
+        }
+        else if (atoi(command[3].c_str()) < 0&&  atoi(command[4].c_str()) ==0  && command[13]=="0")
+        {
+            buffer = "left:";
+            buffer +=   intToStr( atoi(command[3].c_str())*-1);
+            buffer +=";";
+
+        }
+       /* else if (  atoi(command[4].c_str()) ==0 && command[13]=="0" )
+        {
+
+
+        } */
+
+        else if (atoi(command[4].c_str()) > 0&&  atoi(command[5].c_str()) ==0  && command[13]=="0")
+        {
+
+            buffer = "back:";
+            buffer +=  command[4]  ;
+            buffer +=";";
+
+        }
+        else if (atoi(command[5].c_str())>0 &&  atoi(command[4].c_str()) !=0 && command[13]=="0")
+        {
+            buffer = "t_left:";
+            buffer +=  command[5]  ;
+            buffer +=";";
+        }
+        else if (atoi(command[5].c_str())<0 &&  atoi(command[4].c_str()) !=0  && command[13]=="0")
+        {
+            buffer = "t_right:";
+            buffer += intToStr( atoi(command[5].c_str())*-1);
+            buffer +=";";
+        }
+        //////////////////////// ruszanie kamera
+
+        else if (  command[11]=="1")
+        {
+            buffer = "h_move_left:";
+            buffer += "3"  ;
+            buffer +=";";
+
+        }
+        else if (   command[9]=="1")
+        {
+            buffer = "h_move_right:";
+            buffer +=  "3"  ;
+            buffer +=";";
+        }
+
+
+
+
+
+        else if (  command[8]=="1")
+        {
+            buffer = "v_move_left:";
+            buffer += "3"  ;
+            buffer +=";";
+
+        }
+        else if (   command[10]=="1")
+        {
+            buffer = "v_move_right:";
+            buffer +=  "3"  ;
+            buffer +=";";
+        }
+        else if (   command[13]=="1" && command[15]=="1")
+        {
+            buffer = "_move_zero:";
+            buffer +=  "3"  ;
+            buffer +=";";
+        }
+        c_write_buf( (char*) send_to_arduino(my_data, buffer ).c_str() );
+
+        break;
     default :
         std::cout << " nic nie przyszlo komenda z dupy " << c_buffer<<std::endl;
-        c_write_buf("unknown command\n");
+        c_write_buf((char *)(intToStr(command.size())+"unknown command\n").c_str());
 
     }
 

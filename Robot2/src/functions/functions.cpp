@@ -144,3 +144,43 @@ std::string send_to_arduino (thread_data *my_data_logic, std::string msg){
   return msg;
 } //end send_to_arduino
 
+std::string  sek_to_uptime(long long secy )
+{
+
+
+    const int min = 60; //s
+    const int houry = 3600; //s
+    const int day = 86400; //s
+
+
+
+    int number_day, number_hour, number_min, number_sec;
+    int temp1, temp2, temp3;
+
+
+    number_day = secy / day;
+
+     std::string text = "\n" +intToStr( number_day )+ " day " ;
+
+    temp1 = secy % day;
+
+    number_hour = temp1 / houry;
+    text += intToStr( number_hour ) +" hours "  ;
+
+    temp2 = temp1 % houry;
+
+    number_min = temp2 / min;
+    text += intToStr(number_min)+" minutes "  ;
+
+    temp3 = temp2 % min;
+
+    number_sec = temp3;
+    text += intToStr( number_sec )+ " seconds " ;
+
+ return text;
+}
+int  map(int value, int from_min, int from_max, int   to_min, int to_max)
+{
+
+return (value - from_min) * (to_max - to_min)/(from_max - from_min) + to_min;
+}

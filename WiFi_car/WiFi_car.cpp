@@ -80,8 +80,13 @@ int main(int argc, char *argv[])
      close(sockfd);
      return 0; /* we never get here */
 }
+int  map(int value, int from_min, int from_max, int   to_min, int to_max)
+{
 
-void analyse ( char c_buffer [256],SerialPi * serial_ardu)
+return (value - from_min) * (to_max - to_min)/(from_max - from_min) + to_min;
+}
+
+std::string  analyse ( char c_buffer [256],SerialPi * serial_ardu)
 {
 
 	std::string buffer = "";	
@@ -107,34 +112,34 @@ void analyse ( char c_buffer [256],SerialPi * serial_ardu)
 
  char input = 'o';
 		
-		if (atoi(command[4].c_str())<0 && command[5] == "0" )
+		if (atoi(command[4].c_str())<0 && atoi(command[5].c_str()) ==0 && command[13]=="0" )
 		{
 			buffer = "forward:";
 			buffer += intToStr( atoi(command[4].c_str())*-1);
 			buffer +=";";
 		}
 		 
-		else if (atoi(command[3].c_str()) > 0 && command[4] == "0")
+		else if (atoi(command[3].c_str()) > 0 &&  atoi(command[4].c_str()) ==0  && command[13]=="0")
 		{
 			buffer = "right:";
 			buffer += command[3]  ;
 			buffer +=";";
 			 
 		}
-		else if (atoi(command[3].c_str()) < 0&& command[4] == "0")
+		else if (atoi(command[3].c_str()) < 0&&  atoi(command[4].c_str()) ==0  && command[13]=="0")
 		{
 			buffer = "left:";
 			buffer +=   intToStr( atoi(command[3].c_str())*-1);
 			buffer +=";";
 			 
 		}
-		else if ( command[4]  == "0")
+		else if (  atoi(command[4].c_str()) ==0 && command[13]=="0" )
 		{
 			buffer = "STOP:00000;";
 			 
 		}
 		
-		else if (atoi(command[4].c_str()) > 0&& command[5] == "0")
+		else if (atoi(command[4].c_str()) > 0&&  atoi(command[5].c_str()) ==0  && command[13]=="0")
 		{
 			 
 			buffer = "back:";
@@ -142,19 +147,62 @@ void analyse ( char c_buffer [256],SerialPi * serial_ardu)
 			buffer +=";";
 			 
 		}
-		else if (atoi(command[5].c_str())>0 && command[4] != "0")
-		{
-			buffer = "t_right:";
-			buffer +=  command[5]  ;;
-			buffer +=";";
-		}
-		else if (atoi(command[5].c_str())<0 && command[4] != "0")
+		else if (atoi(command[5].c_str())>0 &&  atoi(command[4].c_str()) !=0 && command[13]=="0")
 		{
 			buffer = "t_left:";
+			buffer +=  command[5]  ;
+			buffer +=";";
+		}
+		else if (atoi(command[5].c_str())<0 &&  atoi(command[4].c_str()) !=0  && command[13]=="0")
+		{
+			buffer = "t_right:";
 			buffer += intToStr( atoi(command[5].c_str())*-1);
 			buffer +=";";
 		}
-		
+//////////////////////// ruszanie kamera 
+
+    		  else if (  command[11]=="1")
+                {
+                        buffer = "h_move_left:";
+                        buffer += "3"  ;
+                        buffer +=";";
+
+                }
+                else if (   command[9]=="1")
+                {
+                        buffer = "h_move_right:";
+                        buffer +=  "3"  ;
+                        buffer +=";";
+                }
+
+
+
+
+
+		 else if (  command[8]=="1")
+                {	
+                        buffer = "v_move_left:";
+                        buffer += "3"  ;
+                        buffer +=";";
+
+                }
+                else if (   command[10]=="1")
+                {
+                        buffer = "v_move_right:";
+                        buffer +=  "3"  ;
+                        buffer +=";";
+                }
+		else if (   command[13]=="1" && command[15]=="1")
+                {
+                        buffer = "_move_zero:";
+                        buffer +=  "3"  ;
+                        buffer +=";";
+                }
+
+
+
+    std::cout<<"wartosc 5 : "<<atoi(command[5].c_str())<< " wartosc 6: " << atoi(command[6].c_str()) << std::endl;
+
 		serial_ardu->print(buffer.c_str());
 	std::cout << "bufor" << buffer <<std::endl;
 		 if (serial_ardu->available() > 0)
@@ -172,8 +220,8 @@ void analyse ( char c_buffer [256],SerialPi * serial_ardu)
 
                 }
             }
-            std::cout << " odebralem: " << buffer << std::endl;
-    
+            std::cout << " !!!!!!!!!!!!!odebralem: " << buffer << std::endl;
+return buffer;
 
 }
 
@@ -186,7 +234,7 @@ void dostuff (int sock)
 {
    int n;
    char buffer[256];
-   
+   std::string  response;
 	std::string adres ="/dev/ttyACM0";
 	
 	 SerialPi serial_ardu(strdup(adres.c_str()));
@@ -197,14 +245,14 @@ void dostuff (int sock)
    if (n < 0) error("ERROR reading from socket");
 
 
-   analyse(buffer,& serial_ardu);
+   response = analyse(buffer,& serial_ardu);
 
 
 
   // sleep(2);
 
 
-   n = write(sock,"I got your message",18);
+   n = write(sock,/*response.c_str()*/"o" ,1);
    if (n < 0) error("ERROR writing to socket");
    }
 }
