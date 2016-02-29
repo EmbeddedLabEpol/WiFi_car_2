@@ -64,10 +64,10 @@ this -> h_axis = h_axis;
   }
   
   void servo_cam::_move_zero(byte a){
-    if ( a == 0 &&  automation ==1){
-       automation =0; 
+    if ( a == 0 &&  automation ==0){
+       automation =1; 
     }
-    else if ( a == 1 && automation == 0)  {return;}
+    else if ( a == 1 && automation == 1)  {return;}
     h_value = 70;
     v_value = 90;
     h_servo.write(h_value);

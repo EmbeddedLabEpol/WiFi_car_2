@@ -1,6 +1,5 @@
-#include "serialib/serialib.h"              //brak
-//#include "wiadomosc/wiadomosc..h"
-//#include "c_connection/c_connection.h"
+//#include "serialib/serialib.h"              //brak
+
 #include "functions/functions.h"            // brak
 
 #include "parser/parser.hpp"
@@ -16,24 +15,18 @@ bool go_while = true;
 //////////// watek wysylajacy/obdbierajacy dane z portu RS232 ////////
 void *Send_Recieve_rs232_thread (void *przekaz){
     thread_data_rs232 *data_rs232;
-
     data_rs232 = (thread_data_rs232*)przekaz;
-
-
     SerialPi serial_ardu(strdup( data_rs232->portRS232.c_str()));
-    //SerialPi serial_ardu("/dev/ttyACM0");
     serial_ardu.begin( atoi( data_rs232->BaudRate.c_str()));
     std::string znak;
 
     log_file_mutex.mutex_lock();
     log_file_cout << INFO <<"otwarcie portu RS232 " <<  data_rs232->portRS232 << data_rs232->BaudRate<<std::endl;
-    //log_file_cout << INFO <<"w buforze jest bajtow " << port_arduino.Peek() << std::endl;
     log_file_mutex.mutex_unlock();
-    std::cout << "";
 
     while (go_while)
     {
-        usleep(500);
+        //usleep(50);
         pthread_mutex_lock(&C_connection::mutex_who);
         if (data_rs232->pointer.ptr_who[0] == RS232)
         {
@@ -57,19 +50,13 @@ void *Send_Recieve_rs232_thread (void *przekaz){
 
 
             }
-
-            std::cout << " odebralem: " << buffer << std::endl;
-
             pthread_mutex_unlock(&C_connection::mutex_buf);
         }
         pthread_mutex_unlock(&C_connection::mutex_who);
-
-
     }
 
     pthread_exit(NULL);
 }
-
 
 ///////////  watek wymiany polaczenia /////////////////////
 
@@ -79,16 +66,10 @@ void *Server_connectivity_thread(void *przekaz){
 
     pthread_detach( pthread_self () );
 
-    std::cout << " przed while  soket "<< std::endl;
-
     C_connection *client = new C_connection( my_data);
-
-
-
 
     log_file_mutex.mutex_lock();
     log_file_cout << INFO <<"polaczenie z adresu  " <<  inet_ntoa( my_data->from.sin_addr)   <<std::endl;
-    //log_file_cout << INFO <<"w buforze jest bajtow " << port_arduino.Peek() << std::endl;
     log_file_mutex.mutex_unlock();
 
 
@@ -96,7 +77,6 @@ void *Server_connectivity_thread(void *przekaz){
     {
         if( client->c_recv(0) == -1 )
         {
-
             break;
         }
 
@@ -109,8 +89,6 @@ void *Server_connectivity_thread(void *przekaz){
             break;
         }
 
-
-
         // ###############################  koniec analizy   wysylanie wyniku do RS232 lub  TCP ########################
 
         if( client->c_send(0 ) == -1 )
@@ -119,8 +97,6 @@ void *Server_connectivity_thread(void *przekaz){
             break;
         }
     }
-
-
     sleep (3);
     delete client;
     pthread_exit(NULL);
@@ -240,7 +216,6 @@ int main()
         perror( "listen() ERROR" );
         exit( - 1 );
     }
-    //std::cout <<" przed while \n";
 
     struct sockaddr_in from;
     int v_sock_ind = 0;

@@ -52,7 +52,7 @@ extern std::string  _logfile  ;
 
 extern Logger log_file_mutex;
 
- extern std::string buffer;
+extern std::string buffer;
 
 //extern int max_msg  ;
 
@@ -69,17 +69,6 @@ struct Thread_array_struc {
     std::string thread_name;
     int thread_socket;
 };
-//struct s_arg{
-//    serialib port_arduino;
-//    struct struktura_wiadomosci s_msg;
-//    union unia_wiadomosci s_unia_msg;
-//    struct struktura_wiadomosci r_msg;
-//    union unia_wiadomosci r_unia_msg;
-//};
-
-
-
-
 
 struct config{
     std::string portRS232;
@@ -88,8 +77,6 @@ struct config{
     std::string SERVER_IP;
     unsigned int ID_server;
     int v_delay  ;
-
-
 };
 struct thread_data{
     int s_client_sock;
@@ -112,8 +99,5 @@ struct thread_data_rs232{
 
 };
 
-//int parser_bufor ( int32_t bufor_tmp[]);
-/*
 
-*/
 #endif // GLOBAL_H

@@ -12,7 +12,7 @@ cameras = pygame.camera.list_cameras()
 
 print "Using camera %s ..." % cameras[0]
 
-webcam = pygame.camera.Camera(cameras[0],(800,600),"RGB")
+webcam = pygame.camera.Camera(cameras[0],(640,480),"RGB")
 
 webcam.start()
 
@@ -27,7 +27,7 @@ HEIGHT = img.get_height()
 
 
 #HOST = "192.168.254.149"
-#HOST = "10.8.0.7"
+HOST = "10.8.0.7"
 import os
 bashCommand = "ifconfig wlan0 | grep 192.168 | awk '{print $2}' | sed -e 's/addr://g'"
 import subprocess
@@ -82,7 +82,7 @@ while True:
                                  try:
 					connection.send (fp[foto_len_tmp:foto_len_tmp+max_size_pocket] )
                                  except:
-					work=false
+					work = False
 					break
 				 foto_len_tmp = foto_len_tmp + max_size_pocket
                                  print "wysylam zawartosc"

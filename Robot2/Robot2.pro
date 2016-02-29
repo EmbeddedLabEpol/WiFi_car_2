@@ -3,11 +3,10 @@ CONFIG += console
 CONFIG -= qt
 LIBS +=   -L/usr/local/lib    -lwiringPiDev -lwiringPi  -pthread  -lrt -lpthread -lboost_regex
 
-SOURCES += src/iDom_server.cpp src/parser/parser.cpp src/serialib/serialib.cpp \
+SOURCES += src/iDom_server.cpp src/parser/parser.cpp   \
  src/c_connection/c_connection.cpp \
  src/functions/functions.cpp \
  src/c_connection/c_connection2.cpp \
- src/c_connection/c_connection_node.cpp \
    src/logger/logger.cc \
   src/blockQueue/blockqueue.cpp \
     arduPi/arduPi.cpp
@@ -15,7 +14,7 @@ SOURCES += src/iDom_server.cpp src/parser/parser.cpp src/serialib/serialib.cpp \
 
 
 
-HEADERS += src/parser/parser.hpp src/serialib/serialib.h \
+HEADERS += src/parser/parser.hpp   \
  src/c_connection/c_connection.h \
  src/functions/functions.h \
     src/logger/logger.hpp \

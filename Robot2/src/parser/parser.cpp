@@ -83,68 +83,7 @@ config read_config  ( const char* file_path    )
             v_set.PORT= v_value;
         }
 
-   /*     if (variable == s_mac)
-        {    addresses_mac temp_a_mac;
-            temp_a_mac.name_MAC=s_mac;
-            temp_a_mac.MAC=v_value;
-
-            for (unsigned int i=0 ; i< content.size();++i)
-            {
-                if (content.at(i)==0x9 && content.at(++i)==0x9)
-                {
-                    temp_a_mac.option1= content.at(i+1)-((int)'0');
-                    temp_a_mac.option2= content.at(i+3)-((int)'0');
-                    temp_a_mac.option3= content.at(i+5)-((int)'0');
-                    temp_a_mac.option4= content.at(i+7)-((int)'0');
-                    temp_a_mac.option5= content.at(i+9)-((int)'0');
-                    temp_a_mac.option6= content.at(i+11)-((int)'0');
-                }
-            }
-            v_set.A_MAC.insert(v_set.A_MAC.begin() + counter-1, temp_a_mac);
-            s_mac="MAC";
-            ++counter;
-            s_mac.push_back((char)(((int)'0')+counter));
-            //  std::cout << " content "<< content << std::endl;
-
-
-        }
-
-        if (variable == s_node)
-        {
-           address_another_servers temp_a_node;
-            temp_a_node.id=atoi( v_value.c_str());
-           // std::cout << " id noda z v_valuei " << v_value <<std::endl;
-            variable="";
-            for (unsigned int i=0 ; i< content.size();++i)
-            {
-                if (content.at(i)==0x27)
-                {
-
-                    ++i;
-                    while (content.at(i)!= 0x27)
-                    {
-
-                        variable.push_back(content.at(i));
-                        // std::cout << " jestem w while   "<< content.at(i) <<std::endl;
-                        ++i;
-                    }
-                    break;
-                }
-
-            }
-            temp_a_node.SERVER_IP =variable;
-           // std::cout << " laduje do kontenera  " << counter2-1 << std::endl;
-
-
-            // std::cout << "zaladowalem do kontenera \n ";
-            s_node="NODE";
-            ++counter2;
-            s_node.push_back((char)(((int)'0')+counter2));
-          //  std::cout << " id noda "<< v_set.AAS[counter2-1].id << std::endl;
-
-
-        }
-     */   variable = v_value = "";
+    variable = v_value = "";
     }
 
 
