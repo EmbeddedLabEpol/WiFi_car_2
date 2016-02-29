@@ -44,19 +44,17 @@ C_connection::~C_connection()
 
 int C_connection::c_send(int para)
 {
-    std::cout << " wielkosc bufora "<< strlen(c_buffer) << std::endl;
-    if(( send( c_socket, c_buffer ,strlen(c_buffer), para ) ) <= 0 )
+    if(( send( c_socket, str_buf.c_str() ,str_buf.length(), para ) ) <= 0 )
     {
-        //perror( "send() ERROR" );
         return -1;
     }
 
     return 0;
 }
 
-int C_connection::c_send(char command[MAX_buf])
+int C_connection::c_send(std::string command )
 {
-    c_write_buf(command);
+    str_buf = command;
     c_send(0);
     return 0;
 }
@@ -91,12 +89,12 @@ int C_connection::c_recv(int para)
         return -1;
     }
 
-    std::cout << "giazdo odebralo bajtow: " <<recv_size << std::endl;
+   /* std::cout << "giazdo odebralo bajtow: " <<recv_size << std::endl;
     for  ( int i =0 ; i< recv_size;++i)
     {
         std::cout << c_buffer[i];
     }
-    std::cout << " " <<std::endl;
+    std::cout << " " <<std::endl;*/
     return 1;
 }
 
@@ -118,53 +116,48 @@ int C_connection::c_analyse()
         command.push_back( t);
     }
     command.pop_back();  // usowa ostanit wpis smiec
-    c_write_buf("unknown command\n");
+     str_buf= "unknown command\n";
 
     switch (command.size())
     {
     case 1 :
         if(command[0]=="exit")
         {
-            std::cout << " klient sie odlaczyl" << std::endl;
-            c_write_buf("\nEND.\n");
+            str_buf="\nEND.\n";
             break;
         }
 
         else if (command[0]=="hello")
         {
-            c_write_buf("\nHI !\n");
+            str_buf = "\nHI !\n";
             break;
         }
         else if (command [0] == "help")
         {
-            l_send_log("/etc/config/iDom_SERVER/help");
-            c_write_buf("\nEND.\n");
+            l_send_file("/etc/config/iDom_SERVER/help");
+            str_buf="\nEND.\n";
             break;
         }
         else if (command [0] == "OK")
         {
-            c_write_buf("\nEND.\n");
+            str_buf = "\nEND.\n";
             break;
         }
         else if (command [0] == "IP")
         {
-            c_write_buf(( char*) my_data->server_settings->SERVER_IP.c_str() );
+            str_buf = my_data->server_settings->SERVER_IP;
 
             break;
         }
         else if (command [0] == "uptime")
         {
             time(&my_data->now_time);
-            temporary_str ="uptime: ";
-            temporary_str +=  sek_to_uptime(difftime(my_data->now_time,my_data->start) );
-            //temporary_str += boost::lexical_cast<std::string>( difftime(my_data->now_time,my_data->start)    ) + " sek.";
-
-            c_write_buf( (char*) temporary_str.c_str() );
+            str_buf ="uptime: ";
+            str_buf +=  sek_to_uptime(difftime(my_data->now_time,my_data->start) );
             break;
         }
         else
         {
-            // c_write_buf("\nEND.\n");
             break;
         }
     case 2 :
@@ -177,10 +170,9 @@ int C_connection::c_analyse()
                 c_send("\nEND.\n");
 
                 return false;
-
             }
             else
-            {c_write_buf("stop what? \n");
+            {   str_buf="stop what? \n";
                 break;
             }
         }
@@ -188,17 +180,13 @@ int C_connection::c_analyse()
         {
             if (command[1]=="log")
             {
-
-                l_send_log(_logfile);
-                c_write_buf("\nEND.\n");
+                l_send_file(_logfile);
+                str_buf="\nEND.\n";
                 break;
             }
             else if (command[1]=="thread")
             {
-
-                temporary_str = " No ID";
-
-                c_write_buf( (char*)temporary_str.c_str() );
+                str_buf = " No ID";
                 break;
             }
 
@@ -220,13 +208,12 @@ int C_connection::c_analyse()
                 if (command[2]=="temperature"){
                     std::cout << " szukam temeratury" << std::endl;
 
-                    c_write_buf(  (char *)send_to_arduino(my_data,"temperature:339;").c_str()    );
-
+                    str_buf = send_to_arduino(my_data,"temperature:339;");
                     break;
                 }
                 else
                 {
-                    c_write_buf((char*)("wrong parameter: "+command[2]).c_str());
+                    str_buf = ("wrong parameter: "+command[2]);
                     break;
                 }
 
@@ -235,12 +222,12 @@ int C_connection::c_analyse()
 
             else if (command[1]=="send")
             {
-                c_write_buf(  (char *)send_to_arduino(my_data,command[2]).c_str()    );
+                str_buf = send_to_arduino(my_data,command[2]);
                 break;
             }
             else
             {
-                c_write_buf((char*)("wrong parameter: "+command[1]).c_str());
+                str_buf = ("wrong parameter: "+command[1]);
                 break;
             }
 
@@ -251,35 +238,35 @@ int C_connection::c_analyse()
             if (command[1]=="thread")
             {
                 if (command [2] !="all"){
-                    temporary_str = my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_name;
-                    temporary_str += " ID: ";
-                    temporary_str += intToStr(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_ID);
-                    temporary_str += " socket: ";
-                    temporary_str += intToStr(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_socket);
-                    c_write_buf( (char*)temporary_str.c_str() );
+                    str_buf  = my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_name;
+                    str_buf  += " ID: ";
+                    str_buf += intToStr(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_ID);
+                    str_buf  += " socket: ";
+                    str_buf  += intToStr(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_socket);
+
                     break;
                 }
 
                 else {
                     for (int i =0 ; i< MAX_CONNECTION;++i)
                     {
-                        temporary_str = intToStr(i)+"\t";
-                        temporary_str += my_data->main_THREAD_arr[i].thread_name;
-                        temporary_str += "\t ID: ";
-                        temporary_str += intToStr(my_data->main_THREAD_arr[i].thread_ID);
+                        str_buf  = intToStr(i)+"\t";
+                        str_buf  += my_data->main_THREAD_arr[i].thread_name;
+                        str_buf  += "\t ID: ";
+                        str_buf  += intToStr(my_data->main_THREAD_arr[i].thread_ID);
 
                         if (my_data->main_THREAD_arr[i].thread_socket !=0){
-                            temporary_str += " socket: ";
-                            temporary_str += intToStr(my_data->main_THREAD_arr[i].thread_socket);
+                            str_buf  += " socket: ";
+                            str_buf  += intToStr(my_data->main_THREAD_arr[i].thread_socket);
                         }
 
-                        temporary_str += "\n";
-                        c_write_buf( (char*)temporary_str.c_str() );
+                        str_buf  += "\n";
+
                         c_send(0);
                         c_recv(0);
 
                     }
-                    c_write_buf("\nEND.");
+                    str_buf ="\nEND.";
 
                     break;
                 }
@@ -292,6 +279,9 @@ int C_connection::c_analyse()
             // c_write_buf("END.\n");
             break;
         }
+
+
+    
     case 24:
         buffer = "STOP:00000;";
         if (atoi(command[4].c_str())<0 && atoi(command[5].c_str()) ==0 && command[13]=="0" )
@@ -315,12 +305,7 @@ int C_connection::c_analyse()
             buffer +=";";
 
         }
-       /* else if (  atoi(command[4].c_str()) ==0 && command[13]=="0" )
-        {
-
-
-        } */
-
+       
         else if (atoi(command[4].c_str()) > 0&&  atoi(command[5].c_str()) ==0  && command[13]=="0")
         {
 
@@ -380,12 +365,12 @@ int C_connection::c_analyse()
             buffer +=  "3"  ;
             buffer +=";";
         }
-        c_write_buf( (char*) send_to_arduino(my_data, buffer ).c_str() );
+        str_buf = send_to_arduino(my_data, buffer ) ;
 
         break;
     default :
         std::cout << " nic nie przyszlo komenda z dupy " << c_buffer<<std::endl;
-        c_write_buf((char *)(intToStr(command.size())+"unknown command\n").c_str());
+        str_buf ="unknown command\n" ;
 
     }
 

@@ -31,7 +31,7 @@ HOST = "10.8.0.7"
 import os
 bashCommand = "ifconfig wlan0 | grep 192.168 | awk '{print $2}' | sed -e 's/addr://g'"
 import subprocess
-HOST = subprocess.check_output(['bash','-c', bashCommand])
+#HOST = subprocess.check_output(['bash','-c', bashCommand])
 
 
 print "adres to : " , HOST
