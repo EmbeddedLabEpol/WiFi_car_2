@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pi/cpp/rafsik/line_follower/config.h
+
+/home/pi/cpp/rafsik/line_follower/line_finder.cpp
+line_finder.hpp
+/home/pi/cpp/rafsik/line_follower/line_finder.hpp
+
+/home/pi/cpp/rafsik/line_follower/line_finder.hpp
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
+
+/home/pi/cpp/rafsik/line_follower/main.cpp
+opencv/highgui.h
+-
+iostream
+-
+unistd.h
+-
+stdio.h
+-
+config.h
+/home/pi/cpp/rafsik/line_follower/config.h
+raspicam/raspicam_cv.h
+-
+line_finder.hpp
+/home/pi/cpp/rafsik/line_follower/line_finder.hpp
+

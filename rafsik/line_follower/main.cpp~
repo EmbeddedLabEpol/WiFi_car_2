@@ -1,0 +1,186 @@
+#include <opencv/highgui.h>
+#include <iostream>
+#include <unistd.h>
+#include <stdio.h>
+#include "config.h"
+#ifdef USE_RASPICAM
+#include <raspicam/raspicam_cv.h>
+#endif // USE_RASPICAM
+#include "line_finder.hpp"
+
+
+using namespace std;
+using namespace cv;
+
+//global variables
+static bool debug_mode_enabled=false;
+static bool exit_program=false;
+
+#ifdef USE_RASPICAM
+raspicam::RaspiCam_Cv raspi_cam;
+#else
+CvCapture *usb_cam = cvCaptureFromCAM(1);
+#endif
+
+//threads
+static pthread_t cam_thread;
+
+//mutex
+static pthread_mutex_t cam_mutex;
+
+//global variables
+Mat g_cam_view;
+
+//thread function declarations
+void* cam_get_img(void *arg);
+
+
+static void checkInputParameters(int argc, char * argv[])
+{
+    for(int i=0; i < argc; i++)
+    {
+        if(! strcmp(argv[i], "-debug")){
+            cout << "DEBUG_MODE activated" << endl;
+            debug_mode_enabled=true;
+            line_finder_debug_mode=true;
+        }
+        else {
+            cout << "Optional program parameters:" << endl << endl
+                 << "-debug to show all image processing steps" << endl
+                 << endl;
+        }
+    }
+}
+
+
+static void start_cam_thread(void)
+{
+    //configure camera
+    #ifdef USE_RASPICAM
+    raspi_cam.set( CV_CAP_PROP_FORMAT, CV_8UC3 );
+    raspi_cam.set( CV_CAP_PROP_FRAME_WIDTH, CAM_X_RES );
+    raspi_cam.set( CV_CAP_PROP_FRAME_HEIGHT, CAM_Y_RES );
+
+    if ( !raspi_cam.open()) {
+		cerr<<"Error opening raspicam"<<endl;
+        return -1;
+    }
+    raspi_cam.grab();
+    raspi_cam.retrieve(g_cam_view);
+    #else
+    cvSetCaptureProperty( usb_cam, CV_CAP_PROP_FRAME_WIDTH, CAM_X_RES );
+    cvSetCaptureProperty( usb_cam, CV_CAP_PROP_FRAME_HEIGHT, CAM_Y_RES );
+    g_cam_view = cvQueryFrame(usb_cam);
+    #endif // USE_RASPICAM
+
+    int err;
+    err = pthread_create(&cam_thread, NULL, &cam_get_img, NULL);
+    if (err != 0){
+        printf("\ncan't create camera capture thread");
+    }
+}
+
+static void stop_cam_thread(void)
+{
+    pthread_join(cam_thread, NULL);
+    pthread_mutex_destroy(&cam_mutex);
+    #ifdef USE_RASPICAM
+    raspi_cam.release();
+    #else
+    cvReleaseCapture(&usb_cam);
+    #endif // USE_RASPICAM
+}
+
+//CAMERA THREAD
+void* cam_get_img(void *arg)
+{
+    while(!exit_program)
+    {
+        pthread_mutex_lock(&cam_mutex);
+        //capture new image
+        #ifdef USE_RASPICAM
+          raspi_cam.grab();
+          raspi_cam.retrieve(g_cam_view);
+        #else
+          g_cam_view = cvQueryFrame(usb_cam);
+        #endif // USE_RASPICAM
+
+        pthread_mutex_unlock(&cam_mutex);
+        usleep(CAM_UPDATE_T*1000);
+    }
+}
+
+static void showSteeringStatus(Mat &input_img, int line_pos)
+{
+    int left_margin =  1*CAM_X_RES/3;
+    int right_margin = 2*CAM_X_RES/3;
+
+    Scalar steer_ok_col = Scalar( 255, 255, 255 );
+    Scalar steer_err_col = Scalar( 0, 0, 255 );
+
+    Rect steer_area= Rect(1*CAM_X_RES/3, 0, 1*CAM_X_RES/3, CAM_Y_RES);
+
+    if(line_pos == -1){
+        return;
+    }
+    else if(line_pos < left_margin){
+        //draw steering area, turn right
+        rectangle(input_img, steer_area, steer_err_col, 2, 8, 0);
+        drawHorizontalArrow(g_cam_view, Point(CAM_X_RES/2, CAM_Y_RES/2), -80, Scalar(255,255,255), 2, CV_AA);
+    }
+    else if(line_pos > right_margin){
+         //draw steering area
+        rectangle(input_img, steer_area, steer_err_col, 2, 8, 0);
+        drawHorizontalArrow(g_cam_view, Point(CAM_X_RES/2, CAM_Y_RES/2), +80, Scalar(255,255,255), 2, CV_AA);
+    }
+    else {
+        //draw steering area
+        rectangle(input_img, steer_area, steer_ok_col, 1, 8, 0);
+        putText(g_cam_view, "ON TRACK", Point(CAM_X_RES/2-30, 20),
+                CV_FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1, CV_AA, false);
+    }
+}
+
+int main( int argc, char * argv[] )
+{
+    char key;
+    int line_center;
+    Rect scan_area= Rect(0, 3*CAM_Y_RES/4, CAM_X_RES, CAM_Y_RES/4);
+
+
+    checkInputParameters(argc, argv);
+    start_cam_thread();
+
+    while(!exit_program)
+    {
+        key = cvWaitKey(2);
+        //hit ESC to quit application
+        if(key == 0x1B){
+            exit_program=true;
+        }
+        //lock camera
+        pthread_mutex_lock(&cam_mutex);
+        line_center=findLineCenter(g_cam_view, scan_area, true);
+
+        //draw scan area
+        rectangle(g_cam_view, scan_area, Scalar( 0, 255, 0 ), 1, 8, 0);
+        putText(g_cam_view, "scan area", Point(scan_area.tl().x, scan_area.tl().y+10),
+                   CV_FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0), 1, CV_AA, false);
+
+        if(line_center != -1)
+        {
+            showSteeringStatus(g_cam_view, line_center);
+            string info = "Line center found";
+            putText(g_cam_view, info, cvPoint(10,30), CV_FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1, CV_AA, false);
+            cout << "Line center found at x= " << line_center << " px" << endl;
+        }
+        // Show image from camera
+        imshow("Camera view", g_cam_view);
+        //free camera
+        pthread_mutex_unlock(&cam_mutex);
+    }
+    // Clean up
+    cvDestroyAllWindows();
+    stop_cam_thread();
+    return 0;
+}

@@ -59,11 +59,12 @@ while True:
                 img = webcam.get_image()
  #                screen.blit(img, (0,0))
                 #pygame.display.flip()
-                pygame.image.save(img, "/mnt/ramdisk/image.jpg")
-                _file = open('/mnt/ramdisk/image.jpg','rb')
+                pygame.image.save(img, "/mnt/ramdisk/image.mjpg")
+                _file = open('/mnt/ramdisk/image.mjpg','rb')
                 fp = _file.read()
                 _file.close()
                 #print fp
+		#fp   = pygame.image.tostring(img,"RGB")
                 foto_len = len(fp)
                 foto_len_tmp = 0 #foto_len
                 print "dlugosc to : ",foto_len
