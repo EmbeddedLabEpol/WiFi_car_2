@@ -9,13 +9,17 @@
 //dokładny
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#define CAM_X_RES 640
-#define CAM_Y_RES 480
+
 int main ( int argc,char **argv )
 {
     cv::VideoCapture cap(0);
+    cap.set(CV_CAP_PROP_FRAME_WIDTH, 800);
+    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 600);
     cv::Mat img;
+	for ( int i =0 ; i <10 ; ++i ){
     cap >> img;
+std::cout <<  " kolejka " << i << img.size() << std::endl;
+}
     if (img.empty()){
         std::cout << " buba "<<std::endl;
     }
