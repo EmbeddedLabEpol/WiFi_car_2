@@ -26,8 +26,9 @@ HEIGHT = img.get_height()
 
 
 
-#HOST = "192.168.254.149"
+HOST = "192.168.254.230"
 HOST = "10.8.0.7"
+HOST = "192.168.43.182"
 import os
 bashCommand = "ifconfig wlan0 | grep 192.168 | awk '{print $2}' | sed -e 's/addr://g'"
 import subprocess
