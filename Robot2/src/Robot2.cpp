@@ -169,7 +169,13 @@ int main()
 
     node_data.main_THREAD_arr = &thread_array[0];
 
-
+     // start watku camera
+    pthread_create (&thread_array[0].thread_ID, NULL,&camera_thread ,&node_data);
+    thread_array[0].thread_name="CAMERA_master";
+    log_file_mutex.mutex_lock();
+    log_file_cout << INFO << "watek  camera wystartowal   "<< thread_array[0].thread_ID << std::endl;
+    log_file_mutex.mutex_unlock();
+    pthread_detach( thread_array[0].thread_ID );
     bzero( & server, sizeof( server ) );
 
     server.sin_family = AF_INET;

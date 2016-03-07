@@ -31,7 +31,7 @@
 #include "logger/logger.hpp"
 #include "../arduPi/arduPi.h"
 #include "blockQueue/blockqueue.h"
-
+#include "camera/camera.hpp"
 #define MAX_MSG_LEN 18
 #define MAX_CONNECTION 10
 #define FREE 1
@@ -44,9 +44,7 @@
 #define ON 1
 #define OFF 0
 
-#define BUZZER 7
-#define GPIO_SPIK 21
-#define BUTTON_PIN 25
+
 
 extern std::string  _logfile  ;
 

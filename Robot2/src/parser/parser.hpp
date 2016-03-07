@@ -2,6 +2,6 @@
 #define PARSER_H_
 #include <string>
 #include <vector>
-#include "../iDom_server.h"
+#include "../Robot2.h"
 config read_config (const char* file_path  );
 #endif

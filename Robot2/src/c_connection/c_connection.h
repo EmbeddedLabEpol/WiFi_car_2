@@ -2,7 +2,7 @@
 #define C_CONNECTION_H
 
 #include "../functions/functions.h"                 // brak
-#include "src/iDom_server.h"
+#include "src/Robot2.h"
 
 #include <unistd.h>
 #include <boost/foreach.hpp>
