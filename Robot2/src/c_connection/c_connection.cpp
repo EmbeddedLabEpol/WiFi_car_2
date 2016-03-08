@@ -390,5 +390,3 @@ void C_connection::c_send_recv_RS232()
 {
 
 }
-
-

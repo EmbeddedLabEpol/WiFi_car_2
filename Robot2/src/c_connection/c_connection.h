@@ -38,7 +38,7 @@ public:
     void c_start_master();
     void c_recv_send_master();
     void l_send_file(std::string path);
-
+    void l_send_jpg (std::string path);
     private:
     std::string  str_buf;
 };

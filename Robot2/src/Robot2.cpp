@@ -6,7 +6,7 @@
 
 #include <wiringPi.h>
 
-std::string  _logfile  = "/tmp/robot_log.log";
+std::string  _logfile  = "/mnt/ramdisk/robot_log.log";
 std::string buffer ;
 Logger log_file_mutex(_logfile);
 //int max_msg = MAX_MSG_LEN*sizeof(int32_t);
@@ -114,8 +114,6 @@ int main()
 
     config server_settings   =  read_config ( "/home/pi/cpp/Robot2/robot_config.cfg"    );     // strukruta z informacjami z pliku konfigu
 
-    struct sockaddr_in server;
-    int v_socket;
 
     thread_data node_data; // przekazywanie do watku
 
@@ -142,7 +140,7 @@ int main()
     log_file_cout << INFO  << "port TCP \t"<< server_settings.PORT << std::endl;
     log_file_cout << INFO  << "serwer ip \t"<< server_settings.SERVER_IP  <<std::endl;
     log_file_cout << INFO  << "dodatkowe NODY w sieci:\n"  <<std::endl;
-     log_file_mutex.mutex_unlock();
+    log_file_mutex.mutex_unlock();
 
 
     ///////////////////////////////////////////////  koniec logowania do poliku  ///////////////////////////////////////////////////
@@ -169,14 +167,18 @@ int main()
 
     node_data.main_THREAD_arr = &thread_array[0];
 
-     // start watku camera
+    // start watku camera
     pthread_create (&thread_array[0].thread_ID, NULL,&camera_thread ,&node_data);
     thread_array[0].thread_name="CAMERA_master";
     log_file_mutex.mutex_lock();
-    log_file_cout << INFO << "watek  camera wystartowal   "<< thread_array[0].thread_ID << std::endl;
+    log_file_cout << INFO << "watek camera wystartowal   "<< thread_array[0].thread_ID << std::endl;
     log_file_mutex.mutex_unlock();
     pthread_detach( thread_array[0].thread_ID );
-    bzero( & server, sizeof( server ) );
+
+
+    ///////////////////////////////  polaczenie tcp
+    struct sockaddr_in server;
+    int v_socket;
 
     server.sin_family = AF_INET;
     server.sin_port = htons( SERVER_PORT );

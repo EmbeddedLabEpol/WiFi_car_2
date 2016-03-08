@@ -10,4 +10,5 @@
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "../Robot2.h"
+//#include "../functions/functions.h"
 void * camera_thread (void *data );

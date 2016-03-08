@@ -30,7 +30,7 @@ while True:
     if my_bytes == "temperatura":
         s.send ("RS232 get temperature")
         #print(" odbieramy")
-        tm = s.recv(256)
+        tm = s.recv(64000)
         print(tm)
         break
     t = time.strftime("%H:%M")
@@ -39,12 +39,12 @@ while True:
     if my_bytes == "exit" :
         s.send(my_bytes)
 
-        tm = s.recv(256)
+        tm = s.recv(64000)
         print( tm)
         break
     s.send(my_bytes)
     while True :
-        tm = s.recv(256)
+        tm = s.recv(64000)
         #print(tm)
         stdout.write(tm)
 

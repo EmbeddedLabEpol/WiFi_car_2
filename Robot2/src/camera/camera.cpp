@@ -1,16 +1,96 @@
 ﻿#include "camera.hpp"
+#include "../c_connection/c_connection.h"
 using namespace std;
 void * camera_thread (  void * data  )
 {
-	pthread_detach( pthread_self () );
-	thread_data  *my_data;
+    pthread_detach( pthread_self () );
+    thread_data  *my_data;
     my_data = (thread_data*)data;
+
+    //////////////// polaczenie
+    struct sockaddr_in server;
+    int v_socket;
+
+    server.sin_family = AF_INET;
+    server.sin_port = htons( atoi(my_data->server_settings->PORT.c_str()) +1  ) ;
+    if( inet_pton( AF_INET, my_data->server_settings->SERVER_IP.c_str(), & server.sin_addr ) <= 0 )
+    {
+        perror( "inet_pton() ERROR" );
+        exit( - 1 );
+    }
+
+    if(( v_socket = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 )
+    {
+        perror( "socket() ERROR" );
+        exit( - 1 );
+    }
+
+    if( fcntl( v_socket, F_SETFL, O_NONBLOCK ) < 0 ) // fcntl()
+    {
+        perror( "fcntl() ERROR" );
+        exit( - 1 );
+    }
+    // zgub wkurzający komunikat błędu "address already in use"
+    int yes =1;
+    if( setsockopt( v_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof( int ) ) == - 1 ) {
+        perror( "setsockopt" );
+        exit( 1 );
+    }
+    socklen_t len = sizeof( server );
+    if( bind( v_socket,( struct sockaddr * ) & server, len ) < 0 )
+    {
+
+        log_file_mutex.mutex_lock();
+        log_file_cout << CRITICAL << "BIND problem: " <<  strerror(  errno )<< std::endl;
+        log_file_mutex.mutex_unlock();
+        perror( "bind() ERROR" );
+        exit( - 1 );
+    }
+
+    if( listen( v_socket, MAX_CONNECTION ) < 0 )
+    {
+        log_file_mutex.mutex_lock();
+        log_file_cout << CRITICAL << "Listen problem: " <<  strerror(  errno )<< std::endl;
+        log_file_mutex.mutex_unlock();
+        perror( "listen() ERROR" );
+        exit( - 1 );
+    }
+
+    struct sockaddr_in from;
+    int v_sock_ind = 0;
+
+    ///////////////////////////////////////////////////// WHILE ////////////////////////////////////////////////////
+
+    while (1)
+    {
+
+        bzero( & from, sizeof( from ) );
+        if (!go_while) {break;}
+
+        usleep(100000);
+
+        if(( v_sock_ind = accept( v_socket,( struct sockaddr * ) & from, & len ) ) < 0 )
+        {
+            continue;
+        }
+        else
+        {  my_data->s_client_sock =v_sock_ind;
+            my_data->from=from;
+            break;
+        }
+    }
+    C_connection *client = new C_connection( my_data);
+
+    log_file_mutex.mutex_lock();
+    log_file_cout << INFO <<"polaczenie WIDEO  "   <<std::endl;
+    log_file_mutex.mutex_unlock();
+    /// //////////////////////////// koniec polacznie   teraz obrazek
     cv::VideoCapture cap(0);
     //cap.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
     //cap.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
     cv::Mat img;
     cv::Mat img_gray;
-
+    time_t date;
     string face_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";    //Nazwa kaskady kt�r wykorzystujemy do rozpoznania twarzy
     cv::CascadeClassifier face_cascade;
     vector<cv::Rect> faces;                            //Utworzenie bufora na twarze
@@ -20,9 +100,11 @@ void * camera_thread (  void * data  )
         //return -2;
     }
 
-    for ( int i =0 ; i <120 ; ++i ){
+    //for ( int i =0 ; i <120 ; ++i ){
+    while (go_while){
+        img = cv::Mat();
         cap >> img;
-        //img = cv::Mat();
+
         img_gray = cv::Mat();
         //std::cout << img.elemSize();
         //std::cout <<  " kolejka " << i << " wielkosc " <<img.size() <<" sizeof "<<sizeof(img)<< std::endl;
@@ -33,7 +115,7 @@ void * camera_thread (  void * data  )
         //cout << " po czyszczeniu vektora "<<endl;
 
         face_cascade.detectMultiScale(img_gray, faces, 1.1, 3, 0|CV_HAAR_SCALE_IMAGE, cv::Size(50, 50) );
-        //cout << " po detekcji "<<endl;
+        //cout << " po deteji "<<endl;
 
 
         for( unsigned i = 0; i < faces.size(); i++ )
@@ -41,30 +123,28 @@ void * camera_thread (  void * data  )
             cv::Rect rect_face( faces[i] );    //Kwadrat okreslajcy arz
             //ellipse( img, center, Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, Scalar( 255, 120, 12 ), 2, 2, 0 );
             cv::rectangle(img, rect_face, cv::Scalar( 120, 5, 86 ), 2, 2, 0  );
-            cout << "\r kwadrat jest x: " <<rect_face.x << " y: "<< rect_face.y
-             << " wysokosc: " <<rect_face.height << " szerkokosc: "<<rect_face.width <<std::flush;
+            //cout << "\r kwadrat jest x: " <<rect_face.x << " y: "<< rect_face.y
+              //   << " wysokosc: " <<rect_face.height << " szerkokosc: "<<rect_face.width <<std::flush;
 
         } //for faces.size()
         //cout << " po wpisaniu trojkatow  "<<endl;
-        if (faces.size()>0){
+        //if (faces.size()>0){
 
-            time_t data;
-            time(&data);
 
-            cv::putText(img, ctime(&data), cvPoint(30,30),
+            time(&date);
+
+            cv::putText(img, ctime(&date), cvPoint(30,30),
                         cv::FONT_HERSHEY_COMPLEX_SMALL, 1.8, cvScalar(200,200,250), 1, CV_AA);
+           // cout << " iteracja " << i << endl;
             cv::imwrite("/mnt/ramdisk/raspicam_cv_image2.jpg",img);
-           // cout<<"Image saved at raspicam_cv_image.jpg"<<endl;
-        } //if
-
+           //   cout<<"Image saved at raspicam_cv_image.jpg"<<endl;
+        //} //if
+           client->l_send_jpg("/mnt/ramdisk/raspicam_cv_image2.jpg");
 
 
     } ////for
-    if (img.empty()){
-        std::cout << " buba "<<std::endl;
-    }
-    //cv::imwrite("test.jpg",img);
-	 for (int i =0 ; i< MAX_CONNECTION;++i)
+
+    for (int i =0 ; i< MAX_CONNECTION;++i)
     {
 
         if (my_data->main_THREAD_arr[i].thread_ID == pthread_self())
@@ -75,6 +155,8 @@ void * camera_thread (  void * data  )
             break;
         }
     }
+    sleep (3);
+    delete client;
     pthread_exit(NULL);
 
 }
