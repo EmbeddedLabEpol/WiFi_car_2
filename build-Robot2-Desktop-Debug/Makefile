@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = 
 CFLAGS        = -pipe -g -Wall -W -fPIE $(DEFINES)
-CXXFLAGS      = -pipe -g -Wall -W -fPIE $(DEFINES)
+CXXFLAGS      = -J5 -std=c++14 -g -Wall -W -fPIE $(DEFINES)
 INCPATH       = -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I../Robot2 -I.
 LINK          = g++
 LFLAGS        = 
@@ -285,19 +285,39 @@ compiler_clean:
 
 ####### Compile
 
-parser.o: ../Robot2/src/parser/parser.cpp ../Robot2/src/parser/parser.hpp
+parser.o: ../Robot2/src/parser/parser.cpp ../Robot2/src/parser/parser.hpp \
+		../Robot2/src/Robot2.h \
+		../Robot2/src/logger/logger.hpp \
+		../Robot2/arduPi/arduPi.h \
+		../Robot2/src/blockQueue/blockqueue.h \
+		../Robot2/src/camera/camera.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o parser.o ../Robot2/src/parser/parser.cpp
 
 c_connection.o: ../Robot2/src/c_connection/c_connection.cpp ../Robot2/src/c_connection/c_connection.h \
-		../Robot2/src/functions/functions.h
+		../Robot2/src/functions/functions.h \
+		../Robot2/src/Robot2.h \
+		../Robot2/src/logger/logger.hpp \
+		../Robot2/arduPi/arduPi.h \
+		../Robot2/src/blockQueue/blockqueue.h \
+		../Robot2/src/camera/camera.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o c_connection.o ../Robot2/src/c_connection/c_connection.cpp
 
 functions.o: ../Robot2/src/functions/functions.cpp ../Robot2/src/functions/functions.h \
+		../Robot2/src/Robot2.h \
+		../Robot2/src/logger/logger.hpp \
+		../Robot2/arduPi/arduPi.h \
+		../Robot2/src/blockQueue/blockqueue.h \
+		../Robot2/src/camera/camera.hpp \
 		../Robot2/src/c_connection/c_connection.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o functions.o ../Robot2/src/functions/functions.cpp
 
 c_connection2.o: ../Robot2/src/c_connection/c_connection2.cpp ../Robot2/src/c_connection/c_connection.h \
-		../Robot2/src/functions/functions.h
+		../Robot2/src/functions/functions.h \
+		../Robot2/src/Robot2.h \
+		../Robot2/src/logger/logger.hpp \
+		../Robot2/arduPi/arduPi.h \
+		../Robot2/src/blockQueue/blockqueue.h \
+		../Robot2/src/camera/camera.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o c_connection2.o ../Robot2/src/c_connection/c_connection2.cpp
 
 logger.o: ../Robot2/src/logger/logger.cc ../Robot2/src/logger/logger.hpp
@@ -314,6 +334,11 @@ camera.o: ../Robot2/src/camera/camera.cpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o camera.o ../Robot2/src/camera/camera.cpp
 
 Robot2.o: ../Robot2/src/Robot2.cpp ../Robot2/src/functions/functions.h \
+		../Robot2/src/Robot2.h \
+		../Robot2/src/logger/logger.hpp \
+		../Robot2/arduPi/arduPi.h \
+		../Robot2/src/blockQueue/blockqueue.h \
+		../Robot2/src/camera/camera.hpp \
 		../Robot2/src/c_connection/c_connection.h \
 		../Robot2/src/parser/parser.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Robot2.o ../Robot2/src/Robot2.cpp

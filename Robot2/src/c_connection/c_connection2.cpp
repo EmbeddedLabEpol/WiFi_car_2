@@ -4,12 +4,38 @@
 
 
 
-void C_connection::c_read_buf(int c_pthread_self)
-{
+void C_connection::l_send_jpg_buf (  std::vector<unsigned char> &data){
+ str_buf.erase();
+ while( data.size() !=0 )
+ {
 
+     for (int i =0 ; i< 64000-1 ; ++i)
+     {
+         if (data.size()==0)
+         {
+             //str_buf.erase(str_buf.length()-1, str_buf.length());
+             //std::cout << "koniec " << std::endl;
+             break;
+         }
+         str_buf += data.front();
 
+             data.erase(data.begin());
+     }
+     //c_buffer[M_buf-1]='\0';
+    // std::cout << " wielkosc bufora z send "<< str_buf.length() << std::endl;
+     c_recv(0);
+    // std::cout << " odebralem " << c_buffer << std::endl;
+     c_send(0);
 
+     str_buf.erase();
+
+ }
+
+ str_buf = "END#";
+ c_recv(0);
+ c_send(0);
 }
+
 void C_connection::l_send_jpg (std::string path){
 
 
@@ -58,7 +84,7 @@ void C_connection::l_send_jpg (std::string path){
         c_recv(0);
         c_send(0);
 
-std::cout << "close" << std::endl;
+//std::cout << "close" << std::endl;
 
         _file.close();
     }

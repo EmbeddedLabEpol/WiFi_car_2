@@ -166,7 +166,9 @@ int main()
     node_data.pointer.ptr_who=who;
 
     node_data.main_THREAD_arr = &thread_array[0];
-
+    // ustawienie  robota
+    node_data.robot1.face_detection = false;
+    node_data.robot1.send_auto_STOP = true;
     // start watku camera
     pthread_create (&thread_array[0].thread_ID, NULL,&camera_thread ,&node_data);
     thread_array[0].thread_name="CAMERA_master";

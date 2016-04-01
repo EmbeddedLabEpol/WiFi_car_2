@@ -39,6 +39,7 @@ public:
     void c_recv_send_master();
     void l_send_file(std::string path);
     void l_send_jpg (std::string path);
+    void l_send_jpg_buf (std::vector<unsigned char> &data);
     private:
     std::string  str_buf;
 };

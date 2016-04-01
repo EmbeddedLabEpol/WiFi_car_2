@@ -100,7 +100,7 @@ std::string send_to_arduino (thread_data *my_data_logic, std::string msg){
 
     while (go_while)
     {
-        usleep(500);
+        usleep(50);
         pthread_mutex_lock(&C_connection::mutex_who);
         if (my_data_logic->pointer.ptr_who[0] == FREE)
         {
@@ -121,7 +121,7 @@ std::string send_to_arduino (thread_data *my_data_logic, std::string msg){
 
     while (go_while)
     {
-        usleep(500);
+        usleep(50);
         pthread_mutex_lock(&C_connection::mutex_who);
         if (my_data_logic->pointer.ptr_who[0] == pthread_self())
         {

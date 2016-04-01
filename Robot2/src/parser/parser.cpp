@@ -8,8 +8,6 @@
 
 config read_config  ( const char* file_path    )
 {
-    int counter  = 1;
-    int counter2 = 1;
     std::string s_mac="MAC1";
     std::string s_node="NODE1";
     std::string content ;

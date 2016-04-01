@@ -3,7 +3,6 @@
 //using namespace std;
 
 
-
 pthread_mutex_t C_connection::mutex_buf = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t C_connection::mutex_who = PTHREAD_MUTEX_INITIALIZER;
@@ -15,13 +14,12 @@ C_connection::C_connection (thread_data  *my_data):c_socket(my_data->s_client_so
 
     this -> pointer = &my_data->pointer;
     this -> my_data = my_data;
+
     log_file_mutex.mutex_lock();
     log_file_cout << INFO<< "konstruuje nowy obiekt do komunikacj na gniezdzie " << c_socket <<  std::endl;
     log_file_mutex.mutex_unlock();
 
 }
-
-
 
 // destruktor
 C_connection::~C_connection()
@@ -89,7 +87,7 @@ int C_connection::c_recv(int para)
         return -1;
     }
 
-   /* std::cout << "giazdo odebralo bajtow: " <<recv_size << std::endl;
+    /* std::cout << "giazdo odebralo bajtow: " <<recv_size << std::endl;
     for  ( int i =0 ; i< recv_size;++i)
     {
         std::cout << c_buffer[i];
@@ -97,11 +95,6 @@ int C_connection::c_recv(int para)
     std::cout << " " <<std::endl;*/
     return 1;
 }
-
-
-
-
-
 
 int C_connection::c_analyse()
 {
@@ -116,7 +109,7 @@ int C_connection::c_analyse()
         command.push_back( t);
     }
     command.pop_back();  // usowa ostanit wpis smiec
-     str_buf= "unknown command\n";
+    str_buf= "unknown command\n";
 
     switch (command.size())
     {
@@ -281,7 +274,7 @@ int C_connection::c_analyse()
         }
 
 
-    
+
     case 24:
         buffer = "STOP:00000;";
         if (atoi(command[4].c_str())<0 && atoi(command[5].c_str()) ==0 && command[13]=="0" )
@@ -305,7 +298,7 @@ int C_connection::c_analyse()
             buffer +=";";
 
         }
-       
+
         else if (atoi(command[4].c_str()) > 0&&  atoi(command[5].c_str()) ==0  && command[13]=="0")
         {
 
@@ -365,8 +358,23 @@ int C_connection::c_analyse()
             buffer +=  "3"  ;
             buffer +=";";
         }
+        else if ( command[16] =="1"){
+            if (my_data->robot1.face_detection ==false && my_data->robot1.button16_counter ==0){
+                my_data->robot1.face_detection = true;
+                my_data->robot1.send_auto_STOP = false;
+                ++my_data->robot1.button16_counter;
+            }
+            else if (my_data->robot1.face_detection ==true && my_data->robot1.button16_counter ==0){
+                my_data->robot1.face_detection = false;
+                my_data->robot1.send_auto_STOP = true;
+                ++my_data->robot1.button16_counter;
+            }
+        }
+        else if (my_data->robot1.send_auto_STOP==false){
+            return true;
+        }
         str_buf = send_to_arduino(my_data, buffer ) ;
-
+        my_data->robot1.button16_counter = 0;
         break;
     default :
         std::cout << " nic nie przyszlo komenda z dupy " << c_buffer<<std::endl;
@@ -378,15 +386,3 @@ int C_connection::c_analyse()
     return true;
 }
 
-void C_connection::c_send_recv_MASTER()
-{
-
-
-}
-
-
-
-void C_connection::c_send_recv_RS232()
-{
-
-}

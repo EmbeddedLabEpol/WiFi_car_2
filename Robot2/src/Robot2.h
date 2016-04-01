@@ -24,7 +24,7 @@
 #include <boost/lexical_cast.hpp>
 #include <wiringPi.h>
 
- //#include <lirc/lirc_client.h>
+//#include <lirc/lirc_client.h>
 
 
 // MOJE BIBLIOTEKI
@@ -32,17 +32,17 @@
 #include "../arduPi/arduPi.h"
 #include "blockQueue/blockqueue.h"
 #include "camera/camera.hpp"
-#define MAX_MSG_LEN 18
-#define MAX_CONNECTION 10
-#define FREE 1
-#define RS232 11
-#define ok     0
+constexpr int  MAX_MSG_LEN =18;
+constexpr int MAX_CONNECTION =10;
+constexpr int FREE =1;
+constexpr int RS232 =11;
+constexpr int ok   =  0;
 
 #define log_file_cout  f_log //std::cout   zmien f_log na std::cout  i bedzie wypisywac na ekran
 #define log_file_mutex f_log
 
-#define ON 1
-#define OFF 0
+constexpr int ON= 1;
+constexpr int OFF =0;
 
 
 
@@ -67,6 +67,11 @@ struct Thread_array_struc {
     std::string thread_name;
     int thread_socket;
 };
+struct robot_config {
+    bool face_detection;
+    bool send_auto_STOP;
+    int button16_counter =0 ;
+};
 
 struct config{
     std::string portRS232;
@@ -78,10 +83,10 @@ struct config{
 };
 struct thread_data{
     int s_client_sock;
-    struct sockaddr_in from;
-    struct config *server_settings;
-    struct s_pointer pointer;
-
+    sockaddr_in from;
+    config *server_settings;
+    s_pointer pointer;
+    robot_config robot1;
     Thread_array_struc *main_THREAD_arr;
     time_t start;
     time_t now_time;
