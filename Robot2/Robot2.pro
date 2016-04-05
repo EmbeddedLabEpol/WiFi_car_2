@@ -1,7 +1,7 @@
 TEMPLATE = app
 CONFIG += console
 CONFIG -= qt
-QMAKE_CXXFLAGS = -J5 -std=c++14
+QMAKE_CXXFLAGS =  -std=c++14
 LIBS +=   -L/usr/local/lib    -lwiringPiDev -lwiringPi  -pthread  -lrt -lpthread -lboost_regex \
    -I/usr/local/include/ -L/opt/vc/lib  -lopencv_imgcodecs -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lraspicam -lraspicam_cv -lmmal -lmmal_core -lmmal_util -lopencv_core -lopencv_highgui -lopencv_objdetect -lopencv_features2d -lopencv_imgproc -lopencv_highgui -lopencv_core
 

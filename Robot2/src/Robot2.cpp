@@ -1,7 +1,4 @@
-//#include "serialib/serialib.h"              //brak
-
 #include "functions/functions.h"            // brak
-
 #include "parser/parser.hpp"
 
 #include <wiringPi.h>
@@ -17,8 +14,9 @@ void *Send_Recieve_rs232_thread (void *przekaz){
     thread_data_rs232 *data_rs232;
     data_rs232 = (thread_data_rs232*)przekaz;
     SerialPi serial_ardu(strdup( data_rs232->portRS232.c_str()));
-    serial_ardu.begin( atoi( data_rs232->BaudRate.c_str()));
-    std::string znak;
+
+    serial_ardu.begin( std::stoi( data_rs232->BaudRate));
+
 
     log_file_mutex.mutex_lock();
     log_file_cout << INFO <<"otwarcie portu RS232 " <<  data_rs232->portRS232 << data_rs232->BaudRate<<std::endl;
@@ -157,7 +155,7 @@ int main()
     thread_array[2].thread_name="RS232_thread";
 
 
-    int SERVER_PORT = atoi(server_settings.PORT.c_str());
+    int SERVER_PORT = std::stoi(server_settings.PORT);
     server_settings.SERVER_IP = conv_dns(server_settings.SERVER_IP);
     const char *SERVER_IP = server_settings.SERVER_IP.c_str();
 

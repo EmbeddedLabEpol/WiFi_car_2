@@ -4,7 +4,7 @@ blockQueue::blockQueue()
 {
 }
 
-pthread_mutex_t blockQueue::mutex_queue_char = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t blockQueue::mutex_queue_char  = PTHREAD_MUTEX_INITIALIZER;
 
 std::queue < char > blockQueue::_charQ;
 void blockQueue::_add(char X)
@@ -15,8 +15,8 @@ void blockQueue::_add(char X)
 
 }
 
-char blockQueue::_get( ){ 
-	char temp;
+char blockQueue::_get( ){
+    char temp;
 	pthread_mutex_lock(&mutex_queue_char);
 
 	if (_charQ.size() > 0){

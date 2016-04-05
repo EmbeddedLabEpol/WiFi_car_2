@@ -233,9 +233,9 @@ int C_connection::c_analyse()
                 if (command [2] !="all"){
                     str_buf  = my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_name;
                     str_buf  += " ID: ";
-                    str_buf += intToStr(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_ID);
+                    str_buf += std::to_string(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_ID);
                     str_buf  += " socket: ";
-                    str_buf  += intToStr(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_socket);
+                    str_buf  += std::to_string(my_data->main_THREAD_arr[atoi(command[2].c_str())].thread_socket);
 
                     break;
                 }
@@ -243,14 +243,14 @@ int C_connection::c_analyse()
                 else {
                     for (int i =0 ; i< MAX_CONNECTION;++i)
                     {
-                        str_buf  = intToStr(i)+"\t";
+                        str_buf  = std::to_string(i)+"\t";
                         str_buf  += my_data->main_THREAD_arr[i].thread_name;
                         str_buf  += "\t ID: ";
-                        str_buf  += intToStr(my_data->main_THREAD_arr[i].thread_ID);
+                        str_buf  += std::to_string(my_data->main_THREAD_arr[i].thread_ID);
 
                         if (my_data->main_THREAD_arr[i].thread_socket !=0){
                             str_buf  += " socket: ";
-                            str_buf  += intToStr(my_data->main_THREAD_arr[i].thread_socket);
+                            str_buf  += std::to_string(my_data->main_THREAD_arr[i].thread_socket);
                         }
 
                         str_buf  += "\n";
@@ -280,7 +280,7 @@ int C_connection::c_analyse()
         if (atoi(command[4].c_str())<0 && atoi(command[5].c_str()) ==0 && command[13]=="0" )
         {
             buffer = "forward:";
-            buffer += intToStr( atoi(command[4].c_str())*-1);
+            buffer += std::to_string( atoi(command[4].c_str())*-1);
             buffer +=";";
         }
 
@@ -294,7 +294,7 @@ int C_connection::c_analyse()
         else if (atoi(command[3].c_str()) < 0&&  atoi(command[4].c_str()) ==0  && command[13]=="0")
         {
             buffer = "left:";
-            buffer +=   intToStr( atoi(command[3].c_str())*-1);
+            buffer +=   std::to_string( atoi(command[3].c_str())*-1);
             buffer +=";";
 
         }
@@ -316,7 +316,7 @@ int C_connection::c_analyse()
         else if (atoi(command[5].c_str())<0 &&  atoi(command[4].c_str()) !=0  && command[13]=="0")
         {
             buffer = "t_right:";
-            buffer += intToStr( atoi(command[5].c_str())*-1);
+            buffer += std::to_string( atoi(command[5].c_str())*-1);
             buffer +=";";
         }
         //////////////////////// ruszanie kamera

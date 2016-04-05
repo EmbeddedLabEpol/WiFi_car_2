@@ -33,13 +33,13 @@ int main ( int argc,char **argv )
         img_gray = cv::Mat();
         //std::cout << img.elemSize();
         //std::cout <<  " kolejka " << i << " wielkosc " <<img.size() <<" sizeof "<<sizeof(img)<< std::endl;
-
+/*
         cv::cvtColor(img, img_gray,  CV_BGR2GRAY );                //Konwersja obrazu do odcieni szarosci
         //cout << " po konwersji "<<endl;
         faces.clear();
         //cout << " po czyszczeniu vektora "<<endl;
 
-        face_cascade.detectMultiScale(img_gray, faces, 1.1, 3, 0|CV_HAAR_SCALE_IMAGE, cv::Size(50, 50) );
+        //face_cascade.detectMultiScale(img_gray, faces, 1.1, 3, 0|CV_HAAR_SCALE_IMAGE, cv::Size(50, 50) );
         //cout << " po detekcji "<<endl;
 
 
@@ -70,10 +70,12 @@ int main ( int argc,char **argv )
 
 
     } ////for
+    */
     if (img.empty()){
         std::cout << " buba "<<std::endl;
     }
-    //cv::imwrite("test.jpg",img);
+    cv::imwrite("/mnt/ramdisk/test.jpg",img);
+    }
     return 0;
 }
 

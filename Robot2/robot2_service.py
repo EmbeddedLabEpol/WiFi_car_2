@@ -16,7 +16,7 @@ if len(sys.argv) >= 3 :
     #print("podales dobre argumenty")
 else:
     print("adres i port domyslny ")
-    host = "192.168.1.144"
+    host = "1"
     port = int(8833)
 if len(sys.argv) == 4 :
     if sys.argv[3] == "stop" :

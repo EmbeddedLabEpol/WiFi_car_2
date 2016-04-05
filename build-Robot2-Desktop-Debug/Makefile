@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = 
 CFLAGS        = -pipe -g -Wall -W -fPIE $(DEFINES)
-CXXFLAGS      = -J5 -std=c++14 -g -Wall -W -fPIE $(DEFINES)
+CXXFLAGS      = -std=c++14 -g -Wall -W -fPIE $(DEFINES)
 INCPATH       = -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I../Robot2 -I.
 LINK          = g++
 LFLAGS        = 

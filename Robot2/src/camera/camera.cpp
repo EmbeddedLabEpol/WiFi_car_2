@@ -87,11 +87,14 @@ void * camera_thread (  void * data  )
     /// //////////////////////////// koniec polacznie   teraz obrazek
 
     std::vector<unsigned char> data_buffer;
-    std::vector<int> compression_params (cv::IMWRITE_JPEG_QUALITY,20);
+    std::vector<int> compression_params ;//(cv::IMWRITE_JPEG_QUALITY,20);
     //compression_params.insert(1);
     //compression_params.insert(90);
+    compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
+    compression_params.push_back(50);
 
     cv::VideoCapture cap(0);
+   // cap.set(CV_CAP_PROP_FOURCC ,CV_FOURCC('M', 'J', 'P','G') );
     //cap.set(CV_CAP_PROP_FRAME_WIDTH, 800);
     //cap.set(CV_CAP_PROP_FRAME_HEIGHT, 600);
     cv::Mat img;
@@ -135,7 +138,7 @@ void * camera_thread (  void * data  )
                 cv::Rect *rect_face= new cv::Rect( faces[i] );    //Kwadrat okreslajcy arz
                 //ellipse( img, center, Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, Scalar( 255, 120, 12 ), 2, 2, 0 );
                 cv::rectangle(img, *rect_face, cv::Scalar( 120, 5, 86 ), 2, 2, 0  );
-                temp_str2="  x: " + intToStr( rect_face->x +(rect_face->height/2) )+" y: "+ intToStr(rect_face->y+(rect_face->width/2))+  " "+ intToStr(rect_face->width);
+                temp_str2="  x: " + std::to_string( rect_face->x +(rect_face->height/2) )+" y: "+ std::to_string(rect_face->y+(rect_face->width/2))+  " "+ std::to_string(rect_face->width);
                 delete rect_face;
                 if ( rect_face->width < 85 )
                 {
@@ -159,7 +162,7 @@ void * camera_thread (  void * data  )
         cv::putText(img, temp_str, cvPoint(30,30),
                     cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
 
-        cv::imwrite("/mnt/ramdisk/raspicam_cv_image2.jpg",img);
+        cv::imwrite("/mnt/ramdisk/raspicam_cv_image2.jpg",img,compression_params);
 
 
         client->l_send_jpg("/mnt/ramdisk/raspicam_cv_image2.jpg");
@@ -171,7 +174,7 @@ void * camera_thread (  void * data  )
 
         temp_str = ctime(&date);
         temp_str += "  ";
-        temp_str += intToStr(1000/(millis()-start));
+        temp_str += std::to_string(1000/(millis()-start));
         temp_str += "FPS";
     } ////for
 

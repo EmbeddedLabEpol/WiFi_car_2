@@ -60,7 +60,7 @@ config read_config  ( const char* file_path    )
         {
 
 
-            v_set.ID_server = atoi(  v_value.c_str());
+            v_set.ID_server = std::stoi(  v_value);
         }
         if (variable == "SERVER_IP")
         {
@@ -74,7 +74,7 @@ config read_config  ( const char* file_path    )
         }
         if (variable == "DELAY")
         {
-            v_set.v_delay  = atoi(v_value.c_str());
+            v_set.v_delay  = std::stoi(v_value);
         }
         if (variable == "PORT")
         {
