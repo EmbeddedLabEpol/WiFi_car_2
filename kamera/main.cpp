@@ -12,12 +12,21 @@
 using namespace std;
 int main ( int argc,char **argv )
 {
-    cv::VideoCapture cap(0);
+
+    std::cout << " start "<<std::endl;
+    //cv::VideoCapture cap(0);
+    cv::VideoCapture cap("http://192.168.2.122:83/videostream.cgi?rate=0&user=admin&pwd=tajnehaslo");
+    if (!cap.isOpened())
+    {
+        std::cout << " nie da sie otworzyc!!"<<std::endl;
+        return -1;
+    }
     //cap.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
     //cap.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
     cv::Mat img;
     cv::Mat img_gray;
-
+    std::cout << " mamy obiekty "<<std::endl;
+/*
     string face_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";    //Nazwa kaskady którą wykorzystujemy do rozpoznania twarzy
     cv::CascadeClassifier face_cascade;
     vector<cv::Rect> faces;                            //Utworzenie bufora na twarze
@@ -26,9 +35,11 @@ int main ( int argc,char **argv )
         cout << "Nie znaleziono pliku " << face_cascade_name << ".";
         return -2;
     }
-
+*/
     for ( int i =0 ; i <atoi(argv[1]) ; ++i ){
         cap >> img;
+
+        std::cout << " jestem w for  "<< i<<std::endl;
         //img = cv::Mat();
         img_gray = cv::Mat();
         //std::cout << img.elemSize();
@@ -74,7 +85,7 @@ int main ( int argc,char **argv )
     if (img.empty()){
         std::cout << " buba "<<std::endl;
     }
-    cv::imwrite("/mnt/ramdisk/test.jpg",img);
+    cv::imwrite("/mnt/ramdisk/test_IP_CAMERA.jpg",img);
     }
     return 0;
 }
